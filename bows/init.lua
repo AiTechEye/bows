@@ -121,7 +121,7 @@ bows.shoot=function(itemstack, user, pointed_thing)
 			bows.tmp.name=meta.arrow
 			bows.tmp.shots=shots
 
-			local pos = user:getpos()
+			local pos = user:get_pos()
 			local dir = user:get_look_dir()
 
 			local x=math.random(-1,1)*0.1
@@ -129,8 +129,8 @@ bows.shoot=function(itemstack, user, pointed_thing)
 			local z=math.random(-1,1)*0.1
 
 			local e=minetest.add_entity({x=pos.x+x,y=pos.y+1.5+y,z=pos.z+z}, "bows:arrow")
-			e:setvelocity({x=dir.x*level, y=dir.y*level, z=dir.z*level})
-			e:setacceleration({x=dir.x*-3, y=-10, z=dir.z*-3})
+			e:set_velocity({x=dir.x*level, y=dir.y*level, z=dir.z*level})
+			e:set_acceleration({x=dir.x*-3, y=-10, z=dir.z*-3})
 			e:setyaw(user:get_look_yaw()+math.pi)
 			minetest.sound_play("bows_shoot", {pos=pos})
 		end,level,user,meta)

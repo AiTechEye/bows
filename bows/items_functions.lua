@@ -7,7 +7,7 @@ end
 
 
 bows.arrow_fire_object=function(self,target,hp,user,lastpos)
-	bows.arrow_fire(self,lastpos,user,target:getpos())
+	bows.arrow_fire(self,lastpos,user,target:get_pos())
 	return self
 end
 
@@ -73,12 +73,12 @@ bows.arrow_tetanus=function(self,target,hp,user,lastpos)
 			visual="sprite",
 			textures={"bows_hidden.png"}
 		})
-		self.object:setpos(target:getpos())
+		self.object:set_pos(target:get_pos())
 		target:set_attach(self.object, "", {x=0,y=0,z=0},{x=0,y=0,z=0})
 		self.target=target
 		self.hp=self.object:get_hp()
-		self.object:setvelocity({x=0, y=-3, z=0})
-		self.object:setacceleration({x=0, y=-3, z=0})
+		self.object:set_velocity({x=0, y=-3, z=0})
+		self.object:set_acceleration({x=0, y=-3, z=0})
 		return self
 	end
 
@@ -89,8 +89,8 @@ bows.arrow_tetanus=function(self,target,hp,user,lastpos)
 		end, self,target,hp,user,lastpos)
 	else
 		target:set_detach()
-		target:setvelocity({x=0, y=4, z=0})
-		target:setacceleration({x=0, y=-10, z=0})
+		target:set_velocity({x=0, y=4, z=0})
+		target:set_acceleration({x=0, y=-10, z=0})
 		bows.arrow_remove(self)
 	end
 end
@@ -126,7 +126,7 @@ minetest.add_particlespawner({
 end
 
 bows.arrow_rainbow_object=function(self,target,hp,user,lastpos)
-	local pos=target:getpos()
+	local pos=target:get_pos()
 	minetest.add_particle({
 		pos = pos,
 		velocity = vector.new(),
@@ -157,7 +157,7 @@ end
 
 bows.arrow_tnt_object=function(self,target,hp,user,lastpos)
 	local name=user:get_player_name()
-	local pos=target:getpos()
+	local pos=target:get_pos()
 	if not minetest.is_protected(lastpos, name) then
 		nitroglycerine.explode(pos,{
 		place_chance=1,
@@ -183,7 +183,7 @@ end
 
 bows.arrow_tnt_cluster_object=function(self,target,hp,user,lastpos)
 	local name=user:get_player_name()
-	local pos=target:getpos()
+	local pos=target:get_pos()
 	if not minetest.is_protected(lastpos, name) then
 		for i=1,6,1 do
 			bows.tmp={
@@ -195,8 +195,8 @@ bows.arrow_tnt_cluster_object=function(self,target,hp,user,lastpos)
 			local y=math.random(-1,1)*0.1
 			local z=math.random(-1,1)*0.1
 			local e=minetest.add_entity({x=pos.x+x,y=pos.y+y,z=pos.z+z}, "bows:arrow")
-			e:setvelocity({x=x, y=-8, z=z})
-			e:setacceleration({x=0, y=-10, z=0})
+			e:set_velocity({x=x, y=-8, z=z})
+			e:set_acceleration({x=0, y=-10, z=0})
 		end
 		nitroglycerine.explode(pos,{
 		place_chance=1,
@@ -220,8 +220,8 @@ bows.arrow_tnt_cluster_node=function(self,pos,user,lastpos)
 			local y=math.random(-1,1)*0.1
 			local z=math.random(-1,1)*0.1
 			local e=minetest.add_entity({x=pos.x+x,y=pos.y+y,z=pos.z+z}, "bows:arrow")
-			e:setvelocity({x=x, y=-8, z=z})
-			e:setacceleration({x=0, y=-10, z=0})
+			e:set_velocity({x=x, y=-8, z=z})
+			e:set_acceleration({x=0, y=-10, z=0})
 		end
 		nitroglycerine.explode(pos,{
 		place_chance=1,
@@ -246,7 +246,7 @@ bows.arrow_cooltnt_node=function(self,pos,user,lastpos)
 		})
 	end
 	for _, ob in ipairs(minetest.get_objects_inside_radius(pos, radius*2)) do
-		local pos2=ob:getpos()
+		local pos2=ob:get_pos()
 		local d=math.max(1,vector.distance(pos,pos2))
 		local dmg=(8/d)*radius
 		if not (ob:get_luaentity() and ob:get_luaentity().name=="nitroglycerine:ice") then
@@ -262,7 +262,7 @@ bows.arrow_cooltnt_node=function(self,pos,user,lastpos)
 end
 bows.arrow_cooltnt_object=function(self,target,hp,user,lastpos)
 	local name=user:get_player_name()
-	local pos=target:getpos()
+	local pos=target:get_pos()
 	local radius=3
 	if not minetest.is_protected(lastpos, name) then
 		nitroglycerine.explode(pos,{
@@ -276,7 +276,7 @@ bows.arrow_cooltnt_object=function(self,target,hp,user,lastpos)
 		})
 	end
 	for _, ob in ipairs(minetest.get_objects_inside_radius(pos, radius*2)) do
-		local pos2=ob:getpos()
+		local pos2=ob:get_pos()
 		local d=math.max(1,vector.distance(pos,pos2))
 		local dmg=(8/d)*radius
 
@@ -294,7 +294,7 @@ end
 
 bows.arrow_nitrogen_object=function(self,target,hp,user,lastpos)
 	local name=user:get_player_name()
-	local pos=target:getpos()
+	local pos=target:get_pos()
 	local dmg=8
 	if target:get_hp()<=dmg+5 then
 		nitroglycerine.freeze(target)
@@ -306,7 +306,7 @@ end
 
 bows.arrow_nuke_object=function(self,target,hp,user,lastpos)
 	local name=user:get_player_name()
-	local pos=target:getpos()
+	local pos=target:get_pos()
 	if not minetest.is_protected(lastpos, name) then
 		nitroglycerine.explode(pos,{
 		place_chance=50,
@@ -362,14 +362,14 @@ end
 
 bows.visiable=function(self,pos2)
 	if pos2 and not (pos2.x and pos2.y and pos2.z) then
-		pos2=pos2:getpos()
+		pos2=pos2:get_pos()
 	end
 	if not (pos2 and pos2.x) then return nil end
 	local pos1
 	if self.x and self.y and self.z then
 		pos1=self
 	else
-		pos1=self.object:getpos()
+		pos1=self.object:get_pos()
 	end
 	local v = {x = pos1.x - pos2.x, y = pos1.y - pos2.y-1, z = pos1.z - pos2.z}
 	v.y=v.y-1
@@ -396,7 +396,7 @@ bows.rad=function(ob,is,n)
 		end
 		return
 	end
-	local pos=ob:getpos()
+	local pos=ob:get_pos()
 	pos.y=pos.y+1
 	for _, ob2 in ipairs(minetest.get_objects_inside_radius(pos, 10)) do
 		if bows.visiable(pos,ob2) then

@@ -82,7 +82,7 @@ end
 if node.hurt==1 then
 	for _, ob in ipairs(minetest.get_objects_inside_radius(pos, node.radius*2)) do
 		if not (ob:get_luaentity() and (ob:get_luaentity().itemstring or ob:get_luaentity().nitroglycerine_dust)) then
-			local pos2=ob:getpos()
+			local pos2=ob:get_pos()
 			local d=math.max(1,vector.distance(pos,pos2))
 			local dmg=(8/d)*node.radius
 			ob:punch(ob,1,{full_punch_interval=1,damage_groups={fleshy=dmg}})
@@ -93,18 +93,18 @@ if node.hurt==1 then
 end
 if node.velocity==1 then
 	for _, ob in ipairs(minetest.get_objects_inside_radius(pos, node.radius*2)) do
-		local pos2=ob:getpos()
+		local pos2=ob:get_pos()
 		local d=math.max(1,vector.distance(pos,pos2))
 		local dmg=(8/d)*node.radius
 		if ob:get_luaentity() and not ob:get_luaentity().attachplayer and not (ob:get_luaentity().nitroglycerine_dust and ob:get_luaentity().nitroglycerine_dust==2) then
-			ob:setvelocity({x=(pos2.x-pos.x)*dmg, y=(pos2.y-pos.y)*dmg, z=(pos2.z-pos.z)*dmg})
+			ob:set_velocity({x=(pos2.x-pos.x)*dmg, y=(pos2.y-pos.y)*dmg, z=(pos2.z-pos.z)*dmg})
 
 
 			if ob:get_luaentity() and ob:get_luaentity().nitroglycerine_dust then ob:get_luaentity().nitroglycerine_dust=2 end
 
 		elseif ob:is_player() then
 			nitroglycerine.new_player=ob
-			minetest.add_entity({x=pos2.x,y=pos2.y+1,z=pos2.z}, "nitroglycerine:playerp"):setvelocity({x=(pos2.x-pos.x)*dmg, y=(pos2.y-pos.y)*dmg, z=(pos2.z-pos.z)*dmg})
+			minetest.add_entity({x=pos2.x,y=pos2.y+1,z=pos2.z}, "nitroglycerine:playerp"):set_velocity({x=(pos2.x-pos.x)*dmg, y=(pos2.y-pos.y)*dmg, z=(pos2.z-pos.z)*dmg})
 			nitroglycerine.new_player=nil
 		end
 	end
@@ -141,7 +141,7 @@ end
 
 nitroglycerine.freeze=function(ob)
 	local p=ob:get_properties()
-	local pos=ob:getpos()
+	local pos=ob:get_pos()
 	if ob:is_player() then
 		pos=vector.round(pos)
 		local node=minetest.get_node(pos)
@@ -149,7 +149,7 @@ nitroglycerine.freeze=function(ob)
 		minetest.set_node(pos, {name = "nitroglycerine:icebox"})
 		minetest.after(0.5, function(pos, ob) 
 			pos.y=pos.y-0.5
-			ob:moveto(pos,false)
+			ob:move_to(pos,false)
 		end, pos, ob)
 		return
 	end
@@ -230,7 +230,7 @@ minetest.register_entity("nitroglycerine:ice",{
 	makes_footstep_sound = true,
 	automatic_rotate = false,
 	on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-			local pos=self.object:getpos()
+			local pos=self.object:get_pos()
 			minetest.sound_play("default_break_glass", {pos=pos, gain = 1.0, max_hear_distance = 10,})
 			nitroglycerine.crush(pos)
 	end,
@@ -240,8 +240,8 @@ minetest.register_entity("nitroglycerine:ice",{
 		else
 			self.object:remove()
 		end
-		self.object:setacceleration({x = 0, y = -10, z = 0})
-		self.object:setvelocity({x = 0, y = -10, z = 0})
+		self.object:set_acceleration({x = 0, y = -10, z = 0})
+		self.object:set_velocity({x = 0, y = -10, z = 0})
 	end,
 	on_step = function(self, dtime)
 		self.timer=self.timer+dtime
@@ -249,9 +249,9 @@ minetest.register_entity("nitroglycerine:ice",{
 		self.timer=0
 		self.timer2=self.timer2+dtime
 		if self.timer2>0.8 then
-			minetest.sound_play("default_break_glass", {pos=self.object:getpos(), gain = 1.0, max_hear_distance = 10,})
+			minetest.sound_play("default_break_glass", {pos=self.object:get_pos(), gain = 1.0, max_hear_distance = 10,})
 			self.object:remove()
-			nitroglycerine.crush(self.object:getpos())
+			nitroglycerine.crush(self.object:get_pos())
 			return true
 		end
 	end,
@@ -273,7 +273,7 @@ minetest.register_entity("nitroglycerine:dust",{
 	is_visible = true,
 	makes_footstep_sound = true,
 	on_punch2=function(self)
-		minetest.add_item(self.object:getpos(),self.drop)
+		minetest.add_item(self.object:get_pos(),self.drop)
 		self.object:remove()
 		return self
 	end,
@@ -281,7 +281,7 @@ minetest.register_entity("nitroglycerine:dust",{
 		if not nitroglycerine.new_dust then self.object:remove() return self end
 		self.drop=nitroglycerine.new_dust.drop
 		self.object:set_properties({textures = nitroglycerine.new_dust.t})
-		self.object:setacceleration({x=0,y=-10,z=0})
+		self.object:set_acceleration({x=0,y=-10,z=0})
 		return self
 	end,
 	on_step=function(self, dtime)
@@ -289,7 +289,7 @@ minetest.register_entity("nitroglycerine:dust",{
 		if self.time<self.timer then return self end
 		self.time=0
 		self.timer2=self.timer2-1
-		local pos=self.object:getpos()
+		local pos=self.object:get_pos()
 		local u=minetest.registered_nodes[minetest.get_node({x=pos.x,y=pos.y-1,z=pos.z}).name]
 		if u and u.walkable then
 			local n=minetest.registered_nodes[minetest.get_node(pos).name]
@@ -321,7 +321,7 @@ minetest.register_entity("nitroglycerine:playerp",{
 	makes_footstep_sound = false,
 	pointable=false,
 	on_punch=function(self)
-		local v=self.object:getvelocity().y
+		local v=self.object:get_velocity().y
 		if v<0.2 and v>-0.2 then
 			self.kill(self)
 		end
@@ -332,7 +332,7 @@ minetest.register_entity("nitroglycerine:playerp",{
 			if not (liquid and liquid>0) then
 
 				local from=math.floor((self.y+0.5)/2)
-				local hit=math.floor((self.object:getpos().y+0.5)/2)
+				local hit=math.floor((self.object:get_pos().y+0.5)/2)
 				local d=from-hit
 				if d>=0 then
 					nitroglycerine.punchdmg(self.ob,d)
@@ -346,8 +346,8 @@ minetest.register_entity("nitroglycerine:playerp",{
 		if not nitroglycerine.new_player or minetest.check_player_privs(nitroglycerine.new_player:get_player_name(), {fly=true}) then self.object:remove() return self end
 		self.ob=nitroglycerine.new_player
 		self.ob:set_attach(self.object, "",{x = 0, y = 0, z = 0}, {x = 0, y = 0, z = 0})
-		self.object:setacceleration({x=0,y=-10,z=0})
-		self.y=self.object:getpos().y
+		self.object:set_acceleration({x=0,y=-10,z=0})
+		self.y=self.object:get_pos().y
 		return self
 	end,
 	on_step=function(self, dtime)
@@ -355,7 +355,7 @@ minetest.register_entity("nitroglycerine:playerp",{
 		if self.time<self.timer then return self end
 		self.time=0
 		self.timer2=self.timer2-1
-		local pos=self.object:getpos()
+		local pos=self.object:get_pos()
 
 		if pos.y>self.y then self.y=pos.y end
 

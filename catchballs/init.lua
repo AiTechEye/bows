@@ -38,7 +38,7 @@ minetest.register_entity("catchballs:catchball",{
 		return self
 	end,
 	ret=function(self)
-		local pos=self.object:getpos()
+		local pos=self.object:get_pos()
 		if not self.retur and self.meta then
 			self.retur=1
 			local e=minetest.add_entity({x=pos.x,y=pos.y+1,z=pos.z}, self.meta.name)
@@ -47,7 +47,7 @@ minetest.register_entity("catchballs:catchball",{
 				en.on_activate(en,self.meta.data)
 			end
 			self.object:set_properties({physical=false})
-			self.object:setacceleration({x =0, y =0, z =0})
+			self.object:set_acceleration({x =0, y =0, z =0})
 			minetest.add_particlespawner({
 				amount = 40,
 				time =0.5,
@@ -68,10 +68,10 @@ minetest.register_entity("catchballs:catchball",{
 			if nod and nod.buildable_to==true then minetest.set_node(pos,{name="catchballs:light"}) end
 		end
 		if self.retur then
-			local pos2=self.user:getpos()
+			local pos2=self.user:get_pos()
 			pos2.y=pos2.y+1
 			local v={x=(pos.x-pos2.x)*-4,y=(pos.y-pos2.y)*-4,z=(pos.z-pos2.z)*-4}
-			self.object:setvelocity(v)
+			self.object:set_velocity(v)
 			for _, ob in ipairs(minetest.get_objects_inside_radius(pos, 1.5)) do
 				if ob:is_player() and ob:get_player_name()==self.user_name then
 					ob:get_inventory():add_item("main", self.item)
@@ -100,7 +100,7 @@ minetest.register_entity("catchballs:catchball",{
 			self.user=catchballs.user
 			self.user_name=self.user:get_player_name()
 		else
-			minetest.add_item(self.object:getpos(),self.item)
+			minetest.add_item(self.object:get_pos(),self.item)
 			self.kill(self)
 			return self
 		end
@@ -108,7 +108,7 @@ minetest.register_entity("catchballs:catchball",{
 		catchballs.user=nil
 		catchballs.meta=nil
 		catchballs.item=nil
-		self.object:setacceleration({x =0, y =-10, z =0})
+		self.object:set_acceleration({x =0, y =-10, z =0})
 		return self
 	end,
 	on_step=function(self, dtime)
@@ -119,18 +119,18 @@ minetest.register_entity("catchballs:catchball",{
 			self.ret(self)
 			return self
 		end
-		if self.object:getvelocity().y==0 and not self.catch then
+		if self.object:get_velocity().y==0 and not self.catch then
 			self.catch=1
 			if self.type==2 then self.rego=1 end
 			if self.rego then return end
-			local pos=self.object:getpos()
+			local pos=self.object:get_pos()
 			local ob1
 			local d1=10
 			local d2=10
 			local en1
 		for _, ob in ipairs(minetest.get_objects_inside_radius(pos, 5)) do
 			local en=ob:get_luaentity()
-			local pos2=ob:getpos()
+			local pos2=ob:get_pos()
 			d2=vector.distance(pos,pos2)
 			if en and d2<d1 and en.type and en.type~="" and not en.catchball and en.itemstring==nil then
 				ob1=ob
@@ -143,7 +143,7 @@ minetest.register_entity("catchballs:catchball",{
 				self.object:set_properties({physical=false})
 				self.retur=1
 				self.rego=1
-				self.object:setacceleration({x =0, y =0, z =0})
+				self.object:set_acceleration({x =0, y =0, z =0})
 				return
 			end
 			minetest.add_item(pos,self.item)
@@ -169,7 +169,7 @@ minetest.register_entity("catchballs:catchball",{
 			self.retur=1
 			self.rego=1
 			self.item=item
-			self.object:setacceleration({x =0, y =0, z =0})
+			self.object:set_acceleration({x =0, y =0, z =0})
 			return self
 		end
 		minetest.add_item(pos,item)
@@ -193,11 +193,11 @@ minetest.register_tool("catchballs:catchball1", {
 			local pos
 			if user:get_luaentity() then
 				user=user:get_luaentity():get_luaentity()
-				pos=user.object:getpos()
+				pos=user.object:get_pos()
 				dir=catchballs.get_dir(pos,catchballs.pointat(user))
 			else
 				dir=user:get_look_dir()
-				pos=user:getpos()
+				pos=user:get_pos()
 			end
 			local item=itemstack:to_table()
 			catchballs.user=user
@@ -211,7 +211,7 @@ minetest.register_tool("catchballs:catchball1", {
 			pos.y=pos.y+1
 			local v={x=dir.x*15,y=dir.y*15,z=dir.z*15}
 			local e=minetest.add_entity(pos, "catchballs:catchball")
-			e:setvelocity(v)
+			e:set_velocity(v)
 			itemstack:take_item()
 			if user.inv and user.inv["catchballs:catchball1"] and type(user.inv["catchballs:catchball1"])=="number" then
 				user.inv["catchballs:catchball1"]=user.inv["catchballs:catchball1"]-1
@@ -241,17 +241,17 @@ minetest.register_tool("catchballs:catchball2", {
 			if user:get_luaentity() then
 				catchballs.type=1
 				user=user:get_luaentity():get_luaentity()
-				pos=user.object:getpos()
+				pos=user.object:get_pos()
 				dir=catchballs.get_dir(pos,catchballs.pointat(user))
 			else
 				dir=user:get_look_dir()
-				pos=user:getpos()
+				pos=user:get_pos()
 			end
 
 			pos.y=pos.y+1
 			local v={x=dir.x*15,y=dir.y*15,z=dir.z*15}
 			local e=minetest.add_entity(pos, "catchballs:catchball")
-			e:setvelocity(v)
+			e:set_velocity(v)
 			itemstack:take_item()
 			if user.inv and user.inv["catchballs:catchball2"] and type(user.inv["catchballs:catchball2"])=="number" then
 				user.inv["catchballs:catchball2"]=user.inv["catchballs:catchball2"]-1
@@ -285,7 +285,7 @@ minetest.register_node("catchballs:light", {
 })
 
 catchballs.pointat=function(self)
-	local pos=self.object:getpos()
+	local pos=self.object:get_pos()
 	local yaw=self.object:getyaw()
 	if yaw ~= yaw or type(yaw)~="number" then
 		yaw=0
