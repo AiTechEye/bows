@@ -286,7 +286,7 @@ minetest.register_node("catchballs:light", {
 
 catchballs.pointat=function(self)
 	local pos=self.object:get_pos()
-	local yaw=self.object:getyaw()
+	local yaw=self.object:get_yaw()
 	if yaw ~= yaw or type(yaw)~="number" then
 		yaw=0
 	end
@@ -299,3 +299,4 @@ catchballs.get_dir=function(pos1,pos2)
 	local d=math.floor(vector.distance(pos1,pos2)+0.5)
 	return {x=(pos1.x-pos2.x)/-d,y=(pos1.y-pos2.y)/-d,z=(pos1.z-pos2.z)/-d}
 end
+
