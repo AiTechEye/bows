@@ -1,9 +1,9 @@
 bows={
 	nuke=true,
 	cluser=true,
-	pvp=minetest.setting_getbool("enable_pvp") or nil,
+	pvp=minetest.settings:getbool("enable_pvp") or nil,
 	nitroglycerine=minetest.get_modpath("nitroglycerine")~=nil,
-	creative=minetest.setting_getbool("creative_mode"),
+	creative=minetest.settings:getbool("creative_mode"),
 	mesecons=minetest.get_modpath("mesecons"),
 	registed_arrows={},
 	registed_bows={},
@@ -131,7 +131,7 @@ bows.shoot=function(itemstack, user, pointed_thing)
 			local e=minetest.add_entity({x=pos.x+x,y=pos.y+1.5+y,z=pos.z+z}, "bows:arrow")
 			e:set_velocity({x=dir.x*level, y=dir.y*level, z=dir.z*level})
 			e:set_acceleration({x=dir.x*-3, y=-10, z=dir.z*-3})
-			e:setyaw(user:get_look_yaw()+math.pi)
+			e:set_yaw(user:get_look_yaw()+math.pi)
 			minetest.sound_play("bows_shoot", {pos=pos})
 		end,level,user,meta)
 	end
@@ -142,3 +142,4 @@ end
 dofile(minetest.get_modpath("bows") .. "/arrow.lua")
 dofile(minetest.get_modpath("bows") .. "/items_functions.lua")
 dofile(minetest.get_modpath("bows") .. "/items.lua")
+
