@@ -87,7 +87,6 @@ bows.load=function(itemstack, user, pointed_thing)
 	end
 	meta={arrow=arrow:get_name(),shots=shots}
 	item.metadata=minetest.serialize(meta)
-	item.meta=minetest.serialize(meta)
 	item.name=item.name .. "_loaded"
 	itemstack:replace(item)
 	return itemstack
