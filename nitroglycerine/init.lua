@@ -1,4 +1,11 @@
 nitroglycerine={}
+
+local tnt_max_height = tonumber(minetest.settings:get("tnt_max_height"))
+if not tnt_max_height then
+  tnt_max_height = -33000
+  minetest.settings:set("tnt_max_height", tostring(tnt_max_height))
+end
+
 nitroglycerine.explode=function(pos,node)
 	if not (pos and pos.x and pos.y and pos.z) then return end
 	if not node then node={} end
@@ -13,7 +20,9 @@ nitroglycerine.explode=function(pos,node)
 	node.hurt=node.hurt or 1
 	node.blow_nodes=node.blow_nodes or 1
 
-if node.blow_nodes==1 then
+  local top = vector.subtract(pos, node.radius)
+
+if node.blow_nodes==1 and top.y < tnt_max_height then
 
 	local nodes={}
 	if node.set~="" then node.set=minetest.get_content_id(node.set) end
