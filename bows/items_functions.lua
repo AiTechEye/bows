@@ -346,14 +346,14 @@ bows.arrow_radioactive_node=function(self,pos,user,lastpos)
 	bows.arrow_remove(self)
 	for _, ob in ipairs(minetest.get_objects_inside_radius(lastpos, 10)) do
 		if bows.visiable(self,lastpos) then
-			local n
-			local is=ob:is_player()
-			if is then
-				n=ob:get_player_name()
+			local en = ob:get_luaentity()
+			local id = math.random(1,9999)
+			if en then
+				en.bows_rad = id
 			else
-				ob:get_luaentity().bows_rad=1	
+				bows.radioactive_list[ob:get_player_name()] = id
 			end
-			bows.rad(ob,is,n)
+			bows.rad(ob,id)
 		end
 	end
 	return self
@@ -387,32 +387,43 @@ bows.visiable=function(self,pos2)
 	return true
 end
 
-bows.rad=function(ob,is,n)
-	if math.random(1,40)==1 or not ob or ob:get_hp()<=1 or not (ob:is_player() or ob:get_luaentity()) then
-		if ob and ob:get_hp()<=1 then
-			ob:punch(ob,1,{full_punch_interval=1,damage_groups={fleshy=10}},nil)
-		elseif is==false then
-			ob:get_luaentity().bows_rad=nil
-		end
+bows.radioactive_list = {}
+
+bows.rad=function(ob,id)
+	local ob_en = ob:get_luaentity()
+	local pos = ob:get_pos()
+
+	if ob:is_player() and bows.radioactive_list[ob:get_player_name()] ~= id or pos == nil then
+		bows.radioactive_list[""] = nil
 		return
 	end
-	local pos=ob:get_pos()
 	pos.y=pos.y+1
+
 	for _, ob2 in ipairs(minetest.get_objects_inside_radius(pos, 10)) do
 		if bows.visiable(pos,ob2) then
-			local n2
-			local is2=ob2:is_player()
-			if is2 and not (is and n==ob2:get_player_name()) then
-				bows.rad(ob2,is2,ob2:get_player_name())
-			elseif is2==false and not ob2:get_luaentity().bows_rad then
-				ob2:get_luaentity().bows_rad=1
-				bows.rad(ob2,is2)
+			local en = ob2:get_luaentity()
+			if en and not en.bows_rad then
+				en.bows_rad = 1
+				bows.rad(ob2)
+			elseif ob2:is_player() and not bows.radioactive_list[ob2:get_player_name()] then
+				bows.radioactive_list[ob:get_player_name()] = math.random(1,9999)
+				bows.rad(ob2)
 			end
 		end
 	end
 	ob:punch(ob,1,{full_punch_interval=1,damage_groups={fleshy=2}},nil)
 
-	minetest.after(math.random(1,2), function(ob)
-		bows.rad(ob)
-	end,ob)
+	if math.random(1,20) == 1 or pos == nil or ob:get_hp() <= 0 then
+		if ob_en and ob:get_luaentity() then
+			ob_en.bows_rad=nil
+		end
+		if ob:is_player() then
+			bows.radioactive_list[ob:get_player_name()] = nil
+		end
+		return
+	end
+
+	minetest.after(math.random(1,2), function(ob,d)
+		bows.rad(ob,id)
+	end,ob,d)
 end
