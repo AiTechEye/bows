@@ -5,7 +5,7 @@ bows.arrow_dig=function(self,pos,user,lastpos)
 end
 
 bows.arrow_fire_object=function(self,target,hp,user,lastpos)
-	bows.arrow_fire(self,lastpos,user,target:get_pos(),lastpos)
+	bows.arrow_fire(self,lastpos,user,target:get_pos())
 	return self
 end
 
