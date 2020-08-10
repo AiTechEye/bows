@@ -1,17 +1,16 @@
-
 bows.arrow_dig=function(self,pos,user,lastpos)
 	minetest.node_dig(pos, minetest.get_node(pos), user)
 	bows.arrow_remove(self)
 	return self
 end
 
-
 bows.arrow_fire_object=function(self,target,hp,user,lastpos)
-	bows.arrow_fire(self,lastpos,user,target:get_pos())
+	bows.arrow_fire(self,lastpos,user,target:get_pos(),lastpos)
 	return self
 end
 
 bows.arrow_fire=function(self,pos,user,lastpos)
+	lastpos = lastpos or pos
 	local name=user:get_player_name()
 	local node=minetest.get_node(lastpos).name
 	if minetest.is_protected(lastpos, name) then
