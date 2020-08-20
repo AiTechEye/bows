@@ -42,6 +42,16 @@ bows.register_arrow=function(name,def)
 	end
 end
 
+bows.automode=function(itemstack, user, pointed_thing)
+	local item=itemstack:to_table()
+	local meta = minetest.deserialize(item.metadata) or {}
+	meta.automode = meta.automode == false
+	minetest.chat_send_player(user:get_player_name(), "Auto find arrow "..(meta.automode == false and "disabled" or "enabled"))
+	item.metadata = minetest.serialize(meta)
+	itemstack:replace(item)
+	return itemstack
+end
+
 bows.register_bow=function(name,def)
 	if name==nil or name=="" then return false end
 
@@ -55,13 +65,15 @@ bows.register_bow=function(name,def)
 		description = def.description or name,
 		inventory_image = def.texture or "bows_bow.png",
 		on_use =bows.load,
-		groups = {bow=1,stick=1},
+		on_place = bows.automode,
+		groups = {bow=1,stick=1}
 	})
 	minetest.register_tool(def.replace, {
 		description = def.description or name,
 		inventory_image = def.texture_loaded or "bows_bow_loaded.png",
 		on_use =bows.shoot,
-		groups = {bow=1,stick=1,not_in_creative_inventory=1},
+		on_place = bows.automode,
+		groups = {bow=1,stick=1,not_in_creative_inventory=1}
 	})
 	if def.craft then
 		minetest.register_craft({output = def.name,recipe = def.craft})
@@ -71,13 +83,33 @@ end
 
 bows.load=function(itemstack, user, pointed_thing)
 	local inv=user:get_inventory()
-	local index=user:get_wield_index()-1
-	local arrow=inv:get_stack("main", index)
-	if minetest.get_item_group(arrow:get_name(), "arrow")==0 then return itemstack end
 	local item=itemstack:to_table()
-	local meta=minetest.deserialize(item.metadata)
-	local shots=bows.registed_bows[item.name .. "_loaded"].shots
-	if bows.creative==false then
+	local meta = minetest.deserialize(item.metadata) or {}
+	local shots = bows.registed_bows[item.name .. "_loaded"].shots
+	local index
+	local arrow
+
+	if meta.automode == true then
+		for i,v in pairs(inv:get_list("main")) do
+			if minetest.get_item_group(v:get_name(), "arrow") > 0 then
+				index = i
+				break
+			end
+		end
+		if not index then
+			return itemstack
+		else
+			arrow = inv:get_stack("main", index)
+		end
+	else
+		index = user:get_wield_index()-1
+		arrow = inv:get_stack("main", index)
+		if minetest.get_item_group(arrow:get_name(), "arrow") == 0 then
+			return itemstack
+		end
+	end
+
+	if bows.creative == false then
 		local c=arrow:get_count()-shots
 		if c<0 then
 			shots=arrow:get_count()
@@ -85,8 +117,11 @@ bows.load=function(itemstack, user, pointed_thing)
 		end
 		inv:set_stack("main",index,ItemStack(arrow:get_name() .. " " .. c))
 	end
-	meta={arrow=arrow:get_name(),shots=shots}
-	item.metadata=minetest.serialize(meta)
+
+	meta.arrow = arrow:get_name()
+	meta.shots = shots
+
+	item.metadata = minetest.serialize(meta)
 	item.name=item.name .. "_loaded"
 	itemstack:replace(item)
 	return itemstack
