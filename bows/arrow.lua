@@ -1,3 +1,5 @@
+-- changed code by @morocotopo
+
 bows.nothing=function(self,target,hp,user,lastpos)
 	return self
 end
@@ -10,7 +12,10 @@ bows.on_hit_object=function(self,target,hp,user,lastpos)
 		local pos=self.object:get_pos()
 		local opos=target:get_pos()
 		local dir = user:get_look_dir()
-		self.object:set_attach(target, "", {x=(opos.x-pos.x)*4,y=(pos.y-opos.y)*4,z=(pos.z-opos.z)*4},{x=0,y=-90,z=0})
+
+		if pos ~= nil and opos ~= nil and dir ~= nil then
+			self.object:set_attach(target, "", {x=(opos.x-pos.x)*4,y=(pos.y-opos.y)*4,z=(pos.z-opos.z)*4},{x=0,y=-90,z=0})
+		end
 	end
 	return self
 end
